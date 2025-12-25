@@ -85,11 +85,17 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        .error {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h2>ฟอร์มลงทะเบียน</h2>
-    <form method="post">
+    <form method="post" action="">
         <label>ชื่อ-นามสกุล:</label><br>
         <input type="text" name="fullname" required><br><br>
 
@@ -122,17 +128,19 @@
         $fullname = $_POST['fullname']; 
         $email = $_POST['email']; 
         $course = $_POST['course']; 
-        $type = $_POST['type'];
+        $type = isset($_POST['type']) ? $_POST['type'] : "ไม่ระบุ";
 
         // อาหาร (checkbox)
-        if (isset($_POST['food'])) {
-            $food = implode(", ", $_POST['food']);
-        } else {
-            $food = "ไม่ระบุ";
-        }
+        $food = isset($_POST['food']) ? implode(", ", $_POST['food']) : "ไม่ระบุ";
 
         // ค่าลงทะเบียน
-        $price = ($type == "Onsite") ? 1500 : 800;
+        if ($type == "Onsite") {
+            $price = 1500;
+        } elseif ($type == "Online") {
+            $price = 800;
+        } else {
+            $price = 0;
+        }
 
         // บันทึกลงไฟล์
         $data = $fullname. "|". $email. "|".$course. "|" .$food."|" .$type. "|". $price. "\n";
@@ -163,7 +171,9 @@
                 <th>ค่าลงทะเบียน</th>
               </tr>";
         foreach ($lines as $line) {
-            list($_name, $_email, $_course, $_food, $_type, $_price) = explode("|", trim($line));
+            $line = trim($line);
+            if ($line == "") continue;
+            list($_name, $_email, $_course, $_food, $_type, $_price) = explode("|", $line);
             echo "<tr>
                     <td>$_name</td>
                     <td>$_email</td>
